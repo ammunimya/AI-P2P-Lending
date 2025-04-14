@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
 import { getChatbotResponse } from '../services/geminiApi';
-import ReactMarkdown from 'react-markdown';
 
 const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -51,22 +50,14 @@ const Chatbot = () => {
     } catch (error) {
       console.error('Error getting chatbot response:', error);
       
-      // Add custom error message based on error type
-      let errorMessage = "Sorry, I encountered an error. Please try again later.";
-      
-      if (error.message && error.message.includes('authorization')) {
-        errorMessage = "Sorry, I'm having trouble with API authorization. Please contact support.";
-      } else if (error.message && error.message.includes('rate limit')) {
-        errorMessage = "I'm getting too many requests right now. Please try again in a moment.";
-      } else if (error.message && error.message.includes('network')) {
-        errorMessage = "I'm having trouble connecting to the server. Please check your internet connection.";
-      }
-      
-      setMessages(prev => [...prev, {
+      // Add error message
+      const errorMessage = {
         id: Date.now() + 1,
-        text: errorMessage,
+        text: "Sorry, I encountered an error. Please try again later.",
         sender: 'bot'
-      }]);
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
@@ -137,25 +128,7 @@ const Chatbot = () => {
                 } rounded-lg px-4 py-2 max-w-[80%] break-words shadow-sm`}
                 style={{ wordBreak: 'break-word', hyphens: 'auto' }}
               >
-                {message.sender === 'bot' ? (
-                  <ReactMarkdown
-                    components={{
-                      p: ({ node, ...props }) => <p className="mb-2 leading-relaxed" {...props} />,
-                      h3: ({ node, ...props }) => <h3 className="text-lg font-semibold mb-3 mt-4" {...props} />,
-                      ul: ({ node, ...props }) => <ul className="list-disc pl-4 mb-3 space-y-1" {...props} />,
-                      ol: ({ node, ...props }) => <ol className="list-decimal pl-4 mb-3 space-y-1" {...props} />,
-                      li: ({ node, ...props }) => <li className="mb-1" {...props} />,
-                      strong: ({ node, ...props }) => <strong className="font-semibold" {...props} />,
-                      em: ({ node, ...props }) => <em className="italic" {...props} />
-                    }}
-                    remarkPlugins={[]}
-                    rehypePlugins={[]}
-                  >
-                    {message.text}
-                  </ReactMarkdown>
-                ) : (
-                  message.text
-                )}
+                {message.text}
               </div>
             ))}
             {isLoading && (
